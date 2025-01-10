@@ -1,5 +1,5 @@
 import { ensureArray, ensureBoolean, ensureString } from 'ensure-type';
-import _get from 'lodash/get';
+import { get as _get, find } from 'lodash';
 
 const isJSXText = (node) => {
   if (!node) {
@@ -66,7 +66,10 @@ const nodesToString = (nodes, options) => {
       } if (isStringLiteral(expression)) {
         memo += expression.value;
       } else if (isObjectExpression(expression) && (_get(expression, 'properties[0].type') === 'Property')) {
-        memo += `{{${expression.properties[0].key.name}}}`;
+        const baseProperty = expression.properties[0].key.name;
+        const formatProperty = find(expression.properties, ['key.name', 'format']);
+        const formatter = formatProperty ? `, ${formatProperty.value.value}` : '';
+        memo += `{{${baseProperty + formatter}}}`;
       } else {
         console.error(`Unsupported JSX expression. Only static values or {{interpolation}} blocks are supported. Got ${expression.type}:`);
         console.error(ensureString(options?.code).slice(node.start, node.end));

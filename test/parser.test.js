@@ -183,6 +183,7 @@ test('Parse Trans components', () => {
         'multiline-text-string': 'multiline text string',
         'string-literal': 'This is a <strong>test</strong>',
         'object-expression': 'This is a <1>{{test}}</1>',
+        'object-expression-with-format': 'Interpolation + custom formatter Trans <1>{{test, currency(.00/w)}}</1>',
         'arithmetic-expression': '2 + 2 = {{result}}',
         'components': 'Go to <1>Administration > Tools</1> to download administrative tools.',
 
@@ -260,6 +261,7 @@ test('Parse Trans components with fallback key', () => {
         'multiline-text-string': 'multiline text string',
         "string-literal": "This is a <strong>test</strong>",
         "object-expression": "This is a <1>{{test}}</1>",
+        "object-expression-with-format": "Interpolation + custom formatter Trans <1>{{test, currency(.00/w)}}</1>",
         'arithmetic-expression': '2 + 2 = {{result}}',
         'components': 'Go to <1>Administration > Tools</1> to download administrative tools.',
         "lorem-ipsum": "<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.<p>Lorem Ipsum has been the industry's standard dummy text ever since the 1500s</p>",
