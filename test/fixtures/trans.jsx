@@ -29,6 +29,7 @@ const Component = () => (
             </Trans>
             <Trans i18nKey="string-literal">This is a <strong>test</strong></Trans>
             <Trans i18nKey="object-expression">This is a <strong>{{test}}</strong></Trans>
+            <Trans i18nKey="object-expression-with-format">Interpolation + custom formatter Trans <strong>{{test, format: 'currency(.00/w)'}}</strong></Trans>
             <Trans i18nKey="arithmetic-expression">
                 2 + 2 = {{ result: 2 + 2 }}
             </Trans>
