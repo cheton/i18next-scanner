@@ -61,6 +61,8 @@ const defaults = {
 
   defaultValue: '', // default value used if not passed to `parser.set`
 
+  pluralSuffixes: undefined, // override plural suffixes
+
   // resource
   resource: {
     // The path where resources get loaded from. Relative to current working directory.
@@ -257,7 +259,7 @@ class Parser {
       this.resStore[lng] = this.resStore[lng] || {};
       this.resScan[lng] = this.resScan[lng] || {};
 
-      this.pluralSuffixes[lng] = i18nextInstance.services.pluralResolver.getSuffixes(lng);
+      this.pluralSuffixes[lng] = this.options.pluralSuffixes ?? i18nextInstance.services.pluralResolver.getSuffixes(lng);
 
       if (this.pluralSuffixes[lng].length === 0) {
         this.log(`No plural rule found for: ${lng}`);
@@ -511,6 +513,9 @@ class Parser {
             const supportedOptions = [
               'defaultValue',
               'defaultValue_plural',
+              'defaultValue_one',
+              'defaultValue_other',
+              'defaultValue_many',
               'count',
               'context',
               'ns',
@@ -1052,9 +1057,13 @@ class Parser {
         }
 
         resKeys.forEach((resKey) => {
+          const pluralSuffix = resKey.substring(key.length);
+          const defaultPluralValueProp = `defaultValue${pluralSuffix}`;
+          const pluralKey = pluralSuffix.substring(1);
+
           if (resLoad[resKey] === undefined) {
-            if (options.defaultValue_plural !== undefined && resKey.endsWith(`${pluralSeparator}plural`)) {
-              resLoad[resKey] = options.defaultValue_plural;
+            if (options[defaultPluralValueProp] !== undefined && resKey.endsWith(`${pluralSeparator}${pluralKey}`)) {
+              resLoad[resKey] = options[defaultPluralValueProp];
             } else {
               // Fallback to `defaultValue`
               resLoad[resKey] = _.isFunction(defaultValue)
@@ -1065,7 +1074,7 @@ class Parser {
             if (resLoad[resKey] !== undefined) {
               this.log(`Added a new translation key { ${chalk.yellow(JSON.stringify(resKey))}: ${chalk.yellow(JSON.stringify(resLoad[resKey]))} } to ${chalk.yellow(JSON.stringify(this.formatResourceLoadPath(lng, ns)))}`);
             }
-          } else if (options.defaultValue && (!options.defaultValue_plural || !resKey.endsWith(`${pluralSeparator}plural`))) {
+          } else if (options.defaultValue && (!options[defaultPluralValueProp] || !resKey.endsWith(`${pluralSeparator}${pluralKey}`))) {
             const value = _.isFunction(defaultValue)
               ? defaultValue(lng, ns, key, options)
               : (options.defaultValue || defaultValue); // Use `options.defaultValue` if specified
@@ -1076,12 +1085,12 @@ class Parser {
               // A default value has provided but it's different with the expected default
               this.log(`The translation key ${chalk.yellow(JSON.stringify(resKey))}, with a default value of "${chalk.yellow(options.defaultValue)}" has a different default value, you may need to check the translation key of default language (${defaultLng})`);
             }
-          } else if (options.defaultValue_plural && resKey.endsWith(`${pluralSeparator}plural`)) {
+          } else if (options[defaultPluralValueProp] && resKey.endsWith(`${pluralSeparator}${pluralKey}`)) {
             if (!resLoad[resKey]) {
-              resLoad[resKey] = options.defaultValue_plural;
-            } else if ((resLoad[resKey] !== options.defaultValue_plural) && (lng === defaultLng)) {
+              resLoad[resKey] = options[defaultPluralValueProp];
+            } else if ((resLoad[resKey] !== options[defaultPluralValueProp]) && (lng === defaultLng)) {
               // A default value has provided but it's different with the expected default
-              this.log(`The translation key ${chalk.yellow(JSON.stringify(resKey))}, with a default value of "${chalk.yellow(options.defaultValue_plural)}" has a different default value, you may need to check the translation key of default language (${defaultLng})`);
+              this.log(`The translation key ${chalk.yellow(JSON.stringify(resKey))}, with a default "${pluralKey}" value of "${chalk.yellow(options[defaultPluralValueProp])}" has a different default value, you may need to check the translation key of default language (${defaultLng})`);
             }
           }
 
